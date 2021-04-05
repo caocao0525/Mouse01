@@ -22,5 +22,15 @@ The image size = 400x300 (width: 400, height:300)
    >* if mouse ups its head (90 degrees), both eyes are invisible.
    >* if mouse downs its head (90 degrees), all points are visible.
 
+**Exceptions**
+In some cases, points might not be detected due to the position of the mouse head (too left, too right).
 
+**X-axis**
+For the most straight-forward direction, the x coordiates of each point should be :
+ R_e < R_i < N < L_i < L_e (where e stands for ear and i indicates eye.)
+ 
+**For pan angles of +/- 45 degrees**
+   >* estimation for 45 degrees to the right: R_e ~ R_i ~ N < L_i < L_e
+   >* estimation for 45 degrees to the left:  R_e < R_i < N ~ L_i ~ L_e
 
+Seems like any norma for the straight forward direction is required, in terms of ratio of each detected body point.
