@@ -13,8 +13,10 @@ The image size = 400x300 (width: 400, height:300)
 
 **Direction estimate**
 
-hypothesis: 5 classes for pan angle and tilt angle, respectively.
-rough estimation
+*hypothesis*: 5 classes for pan angle and tilt angle, respectively.
+
+*rough estimation*
+
     * if mouse turns to the right (90 degrees), the left eye is invisible. (x, y for the left eye = NaN)
     * if mouse turns to the left (90 degrees), the right eye is invisible. (x, y for the right eye = NaN)
     * if mouse ups its head (90 degrees), both eyes are invisible.
