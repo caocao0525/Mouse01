@@ -17,10 +17,10 @@ The image size = 400x300 (width: 400, height:300)
 
 *rough estimation*
 
-    * if mouse turns to the right (90 degrees), the left eye is invisible. (x, y for the left eye = NaN)
-    * if mouse turns to the left (90 degrees), the right eye is invisible. (x, y for the right eye = NaN)
-    * if mouse ups its head (90 degrees), both eyes are invisible.
-    * if mouse downs its head (90 degrees), all points are visible.
+   >* if mouse turns to the right (90 degrees), the left eye is invisible. (x, y for the left eye = NaN)
+   >* if mouse turns to the left (90 degrees), the right eye is invisible. (x, y for the right eye = NaN)
+   >* if mouse ups its head (90 degrees), both eyes are invisible.
+   >* if mouse downs its head (90 degrees), all points are visible.
 
 
 
