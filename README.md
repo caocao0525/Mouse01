@@ -34,3 +34,4 @@ For the most straight-forward direction, the x coordiates of each point should b
    >* estimation for 45 degrees to the left:  R_e < R_i < N ~ L_i ~ L_e
 
 Seems like any norma for the straight forward direction is required, in terms of ratio of each detected body point.
+An idea for this norma can be the ratio of x coords between R_e to N, L_e to N, and R_i to N, L_i to N.
