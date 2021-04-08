@@ -35,3 +35,11 @@ For the most straight-forward direction, the x coordiates of each point should b
 
 Seems like any norma for the straight forward direction is required, in terms of ratio of each detected body point.
 An idea for this norma can be the ratio of x coords between R_e to N, L_e to N, and R_i to N, L_i to N.
+
+At least, we can say the above ratio can play a role to determine the direction:
+e.g. ) abs(R_i_x - N_x) = (L_i_x - N_x) indicatest the mouse is facing the right front.
+
+
+**Remainings**
+ >* Camera calibration?
+ >* First detect the head object?
