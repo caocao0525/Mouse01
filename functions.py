@@ -89,7 +89,7 @@ def frame2Path(fr_num, all_path):
 def showImage(fr_num, all_path):
     """
     This function simply shows the image of frame no.
-    desgnated by the argument'fr_num'
+    designated by the argument'fr_num'
     """
     fr_num, path = frame2Path(fr_num, all_path)
     img=cv2.imread(path) 
