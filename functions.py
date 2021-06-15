@@ -38,7 +38,7 @@ for path in glob.glob("../data_all/mouse_pos/*.jpg"):
 data = pd.read_csv("../data_all/mouse_body_pos.csv")
 
 
-# In[ ]:
+# In[8]:
 
 
 c1_path = "../data_all/initial_class/c1/"
@@ -404,6 +404,131 @@ def showClass(data):
                 
     return print('''Exceptions from case 1 = {} 
                  from case 2 = {}'''.format(n1, n2))
+
+
+# In[ ]:
+
+
+def saveClass_reserve(data):
+    
+    """
+    This function save image file according to the result form showClass:
+    
+    right(1) - (2) - (3) - (4) - front face(5) - (6)- (7) - (8) - left(9)
+    Input: dataframe (only a little part of the total data is recommended)
+    Output: no. of all cases saved
+    """ 
+    print("""
+    
+    Start saving ...
+    
+    """)
+    
+    nc1, nc2, nc3, nc4, nc5, nc6, nc7, nc8, nc9 = 0,0,0,0,0,0,0,0,0
+    nn=0 # to calculate the num of no nose cases
+    ne1=0 # to calculate the num of exception in case 1
+    ne2=0 # to calculate the num of exception in case 2 
+    
+    # retrieve data strip
+    for data_num in range(len(data)):  # need to take an absolute coords!
+        df = data.iloc[[data_num]]
+        fr_num = data_num2fr_num(df)
+        
+        fr_num_str = frame2Path(fr_num, all_path)[0]
+        img_path = frame2Path(fr_num, all_path)[1] # this might hinder showClass of showMarksInFct, let's see
+        
+    
+        ########################################################
+        # case 1: if there exists at least one NaN in the data #
+        ########################################################
+
+        if df.isnull().values.any(): # dealing with the case where there's any NaN
+
+            # remove when there is no nose pose info  (This removes 89 cases)     
+            if df.isnull()['nose_x'].item():
+                nn+=1
+                copyfile(img_path, no_nose_path+"img_"+fr_num_str+".jpg")
+                
+            # case 1-1: head turned to the right approx. over 45 degrees
+            elif df.isnull()['eye_r_x'].item()&df.notnull()['ear_r_x'].item()&df.notnull()['ear_l_x'].item():
+                # case 1-1-1: approx. 45 to 90 
+                if df['ear_l_x'].item()-df['ear_r_x'].item() > 0:
+                    nc2+=1
+                    copyfile(img_path, c2_path+"img_"+fr_num_str+".jpg")
+                # case 1-1-2: approx. over 90  # ref. frame 30
+                else:
+                    nc1+=1
+                    copyfile(img_path, c1_path+"img_"+fr_num_str+".jpg")
+
+            # case 1-2: head turned to the left approx. over 45 degrees
+            elif df.isnull()['eye_l_x'].item()&df.notnull()['ear_r_x'].item()&df.notnull()['ear_l_x'].item():
+                    # case 1-2-1: approx. 45 to 90
+                if df['ear_l_x'].item()-df['ear_r_x'].item() > 0:
+                    nc8+=1
+                    copyfile(img_path, c8_path+"img_"+fr_num_str+".jpg")
+                else:
+                    nc9+=1
+                    copyfile(img_path, c9_path+"img_"+fr_num_str+".jpg")
+            else:    
+                ne1 += 1                
+                copyfile(img_path, exception1_path+"img_"+fr_num_str+".jpg")
+
+        ##############################################
+        # case 2: all parts are detected without NaN #
+        ##############################################
+
+        else: 
+            img, mark = showMarkInFct(df)
+            ear_rx, ear_ry = mark[0]
+            ear_lx, ear_ly = mark[1]
+            ear_cx, ear_cy = mark[2]
+            eye_rx, eye_ry = mark[3]
+            eye_lx, eye_ly = mark[4]
+            eye_cx, eye_cy = mark[5]
+            n_x, n_y = mark[6]
+
+            # nose is located between eyes (then we determine using proportion)
+            if eye_rx<n_x & n_x<eye_lx:
+                hori_eyes=abs(eye_lx-eye_rx)
+                n_r_dev_raw=abs(eye_rx-n_x)
+                n_l_dev_raw=abs(eye_lx-n_x)
+                assert n_r_dev_raw+n_l_dev_raw == hori_eyes
+                # how much the nose deviates: 
+                n_r_dev=n_r_dev_raw/hori_eyes #if smaller than 0.5 -> turning to the right
+                n_l_dev=n_l_dev_raw/hori_eyes # if smaller than 0.5 -> turning to the left
+#                 print('|R_eye---({:.2f})---N---({:.2f})---L_eye|'.format(n_r_dev, n_l_dev))
+                # define the front face when n_r_dev and n_l_dev is larger than 0.25 
+                # to be a front face, those numbers should be between 0.5 w.r.t. the center
+                if (n_r_dev >0.25) & (n_l_dev>0.25):
+                    nc5+=1
+                    copyfile(img_path, c5_path+"img_"+fr_num_str+".jpg")
+                elif n_r_dev >0.25:
+                    nc6+=1
+                    copyfile(img_path, c6_path+"img_"+fr_num_str+".jpg")
+                else:
+                    nc4+=1
+                    copyfile(img_path, c4_path+"img_"+fr_num_str+".jpg")
+
+            # nose is located outside of the right eye 
+            elif eye_rx>=n_x & n_x<eye_lx:
+                nc3+=1
+                copyfile(img_path, c3_path+"img_"+fr_num_str+".jpg")
+
+            elif eye_rx<n_x & n_x>=eye_lx:
+                nc7+=1
+                copyfile(img_path, c7_path+"img_"+fr_num_str+".jpg")
+
+            else:
+                ne2+=1               
+                copyfile(img_path, exception2_path+"img_"+fr_num_str+".jpg")
+    
+    class_no_list =[nc1, nc2, nc3, nc4, nc5, nc6, nc7, nc8, nc9, nn, ne1, ne2]
+    class_out = pd.DataFrame(class_no_list, 
+                             index=['nc1', 'nc2', 'nc3', 'nc4', 'nc5', 'nc6', 'nc7', 'nc8', 'nc9', 'nn', 'ne1', 'ne2'], 
+                             columns=['counts'])
+
+    print("    ... Done!")
+    return class_out
 
 
 # In[9]:
