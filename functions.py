@@ -5,7 +5,7 @@
 # 
 # ### All functions and utilities are reserved in this file
 
-# In[7]:
+# In[2]:
 
 
 import glob
@@ -24,7 +24,7 @@ import shutil
 from shutil import copyfile
 
 
-# In[2]:
+# In[3]:
 
 
 all_path = []
@@ -32,13 +32,13 @@ for path in glob.glob("../data_all/mouse_pos/*.jpg"):
     all_path.append(path)
 
 
-# In[3]:
+# In[4]:
 
 
 data = pd.read_csv("../data_all/mouse_body_pos.csv")
 
 
-# In[8]:
+# In[5]:
 
 
 c1_path = "../data_all/initial_class/c1/"
@@ -55,7 +55,7 @@ exception2_path = "../data_all/initial_class/exception_2/"
 no_nose_path = "../data_all/initial_class/no_nose/"
 
 
-# In[4]:
+# In[6]:
 
 
 # function 1
@@ -78,7 +78,7 @@ def pathSorting(all_path):
     return sorted_path
 
 
-# In[5]:
+# In[7]:
 
 
 def frame2Path(fr_num, all_path):
@@ -103,7 +103,7 @@ def frame2Path(fr_num, all_path):
     return fr_num, path
 
 
-# In[13]:
+# In[8]:
 
 
 def data_num2fr_num(df):
@@ -120,7 +120,7 @@ def data_num2fr_num(df):
     return result
 
 
-# In[6]:
+# In[9]:
 
 
 def showImage(fr_num, all_path):
@@ -137,7 +137,7 @@ def showImage(fr_num, all_path):
     plt.show()
 
 
-# In[7]:
+# In[10]:
 
 
 def showData(fr_num):
@@ -148,7 +148,7 @@ def showData(fr_num):
     return single_df
 
 
-# In[8]:
+# In[11]:
 
 
 def showMarks(fr_num, data): 
@@ -218,7 +218,7 @@ def showMarks(fr_num, data):
         return print('Check whether the data strip contains NaN values.')
 
 
-# In[2]:
+# In[12]:
 
 
 def showMarkInFct(df): 
@@ -293,7 +293,7 @@ def showMarkInFct(df):
         return print('Check whether the data strip contains NaN values.')
 
 
-# In[6]:
+# In[13]:
 
 
 def showClass(data):
@@ -406,7 +406,7 @@ def showClass(data):
                  from case 2 = {}'''.format(n1, n2))
 
 
-# In[ ]:
+# In[14]:
 
 
 def saveClass_reserve(data):
@@ -531,7 +531,31 @@ def saveClass_reserve(data):
     return class_out
 
 
-# In[9]:
+# In[15]:
+
+
+def removeAllFiles():
+    """
+    This function removes all the files in class 
+    from c1 to c9, and nn, ne1, ne2 as well
+    """
+    print(""" 
+    
+    Start removing ...
+    
+    """)
+    saved_path_all = [c1_path, c2_path, c3_path, c4_path,
+                      c5_path, c6_path, c7_path, c8_path,
+                      c9_path, exception1_path, exception2_path,
+                      no_nose_path]
+    for path in saved_path_all:
+        files = glob.glob(path+"*")
+        for f in files:
+            os.remove(f)
+    return print("    ... Done!")
+
+
+# In[16]:
 
 
 def panCheck(img, mark):
@@ -582,7 +606,7 @@ def panCheck(img, mark):
     
 
 
-# In[10]:
+# In[17]:
 
 
 def tiltCheck(img, mark):   #deprecated or not use for the moment due to erronous 
@@ -640,7 +664,7 @@ def tiltCheck(img, mark):   #deprecated or not use for the moment due to erronou
         return print('Check whether the datastrip contains NaN values.') 
 
 
-# In[3]:
+# In[18]:
 
 
 def showClass_old_erroneous(data):
@@ -751,6 +775,12 @@ def showClass_old_erroneous(data):
                 showImage(fr_num, all_path)
                 
     return print("Exceptions from case 1: {} and from case 2: {}".format(n1, n2))
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
