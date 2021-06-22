@@ -5,8 +5,10 @@
 # 
 # ### All functions and utilities are reserved in this file
 
-# In[23]:
+# In[2]:
 
+
+# imports
 
 import glob
 import os
@@ -25,7 +27,7 @@ from shutil import copyfile
 from tqdm.notebook import tqdm
 
 
-# In[24]:
+# In[3]:
 
 
 all_path = []
@@ -33,13 +35,13 @@ for path in glob.glob("../data_all/mouse_pos/*.jpg"):
     all_path.append(path)
 
 
-# In[25]:
+# In[4]:
 
 
 data = pd.read_csv("../data_all/mouse_body_pos.csv")
 
 
-# In[26]:
+# In[5]:
 
 
 c1_path = "../data_all/initial_class/c1/"
@@ -56,7 +58,7 @@ exception2_path = "../data_all/initial_class/exception_2/"
 no_nose_path = "../data_all/initial_class/no_nose/"
 
 
-# In[27]:
+# In[6]:
 
 
 # function 1
@@ -79,7 +81,7 @@ def pathSorting(all_path):
     return sorted_path
 
 
-# In[28]:
+# In[7]:
 
 
 def frame2Path(fr_num, all_path):
@@ -104,7 +106,7 @@ def frame2Path(fr_num, all_path):
     return fr_num, path
 
 
-# In[29]:
+# In[8]:
 
 
 def data_num2fr_num(df):
@@ -121,7 +123,7 @@ def data_num2fr_num(df):
     return result
 
 
-# In[30]:
+# In[9]:
 
 
 def showImage(fr_num, all_path):
@@ -138,7 +140,7 @@ def showImage(fr_num, all_path):
     plt.show()
 
 
-# In[31]:
+# In[10]:
 
 
 def showData(fr_num):
@@ -149,7 +151,7 @@ def showData(fr_num):
     return single_df
 
 
-# In[32]:
+# In[11]:
 
 
 def showMarks(fr_num, data): 
@@ -219,7 +221,7 @@ def showMarks(fr_num, data):
         return print('Check whether the data strip contains NaN values.')
 
 
-# In[33]:
+# In[12]:
 
 
 def showMarks_onlyParts(fr_num, data): 
@@ -289,7 +291,7 @@ def showMarks_onlyParts(fr_num, data):
         return print('Check whether the data strip contains NaN values.')
 
 
-# In[34]:
+# In[13]:
 
 
 def showMarkInFct(df): 
@@ -364,7 +366,133 @@ def showMarkInFct(df):
         return print('Check whether the data strip contains NaN values.')
 
 
-# In[35]:
+# In[14]:
+
+
+def showClass(data):
+    """
+    This function shows the pose class according to the approx. pan angle as followings:
+    right(1) - (2) - (3) - (4) - front face(5) - (6)- (7) - (8) - left(9)
+    Input: dataframe (only a little part of the total data is recommended)
+    Output: image, class, and no. of exception cases
+    """ 
+    
+    n1=0 # to calculate the num of exception in case 1
+    n2=0 # to calculate the num of exception in case 2
+    
+    # retrieve data strip
+    for data_num in range(len(data)):  # need to take an absolute coords!
+#         fr_num=data_num+1
+        df = data.iloc[[data_num]]
+        fr_num = data_num2fr_num(df)
+        # Basically, the pan angle class starts from the right to the left
+        # 
+    
+        ########################################################
+        # case 1: if there exists at least one NaN in the data #
+        ########################################################
+
+        if df.isnull().values.any(): # dealing with the case where there's any NaN
+
+            # remove when there is no nose pose info  (This removes 89 cases)     
+            if df.isnull()['nose_x'].item():
+                print("fr_num: {} = no nose".format(fr_num))
+                showImage(fr_num, all_path)
+
+            # case 1-1: head turned to the right approx. over 45 degrees
+            elif df.isnull()['eye_r_x'].item()&df.notnull()['ear_r_x'].item()&df.notnull()['ear_l_x'].item():
+                # case 1-1-1: approx. 45 to 90 
+                if df['ear_l_x'].item()-df['ear_r_x'].item() > 0:
+                    print("fr_num: {} 'CLASS 2' = turning to the right (approx. 45 to 90 degrees)".format(fr_num))
+                    showImage(fr_num, all_path)
+                # case 1-1-2: approx. over 90  # ref. frame 30
+                else:
+                    print("fr_num: {} 'CLASS 1' = turning to the right (approx. over 90 degrees)".format(fr_num))
+                    showImage(fr_num, all_path)
+
+            # case 1-2: head turned to the left approx. over 45 degrees
+            elif df.isnull()['eye_l_x'].item()&df.notnull()['ear_r_x'].item()&df.notnull()['ear_l_x'].item():
+                    # case 1-2-1: approx. 45 to 90
+                if df['ear_l_x'].item()-df['ear_r_x'].item() > 0:
+                    print("fr_num: {} 'CLASS 8' =turning to the left (approx. 45 to 90 degrees)".format(fr_num))
+                    showImage(fr_num, all_path)
+                # case 1-2-2: approx. over 90  
+                else:
+                    print("fr_num: {} 'CLASS 9' = turning to the left (approx. over 90 degrees)".format(fr_num))
+                    showImage(fr_num, all_path)
+                    
+            # [addition to the] case 1 :  approx. over 90 # ref. fr_num 4 
+            # only right eye, ear, and nose are present
+            elif df.isnull()['eye_l_x'].item()&df.isnull()['ear_l_x'].item()&df.notnull()['eye_r_x'].item()&df.notnull()['ear_r_x'].item():
+                print("fr_num: {} 'CLASS 9' = turning to the left (approx. over 90 degrees)".format(fr_num))
+                showImage(fr_num, all_path)
+            # only left eye, ear, and nose are present
+            elif df.isnull()['eye_r_x'].item()&df.isnull()['ear_r_x'].item()&df.notnull()['eye_l_x'].item()&df.notnull()['ear_l_x'].item():
+                print("fr_num: {} 'CLASS 1' = turning to the right (approx. over 90 degrees)".format(fr_num))
+                showImage(fr_num, all_path)
+            
+            
+            else:    
+                n1 += 1                
+                print("fr_num: {} = Exceptions reported from case 1".format(fr_num))
+                showImage(fr_num, all_path)
+    #       ----  
+
+        ##############################################
+        # case 2: all parts are detected without NaN #
+        ##############################################
+
+        else: 
+            img, mark = showMarkInFct(df)
+            ear_rx, ear_ry = mark[0]
+            ear_lx, ear_ly = mark[1]
+            ear_cx, ear_cy = mark[2]
+            eye_rx, eye_ry = mark[3]
+            eye_lx, eye_ly = mark[4]
+            eye_cx, eye_cy = mark[5]
+            n_x, n_y = mark[6]
+
+            # nose is located between eyes (then we determine using proportion)
+            if eye_rx<n_x & n_x<eye_lx:
+                hori_eyes=abs(eye_lx-eye_rx)
+                n_r_dev_raw=abs(eye_rx-n_x)
+                n_l_dev_raw=abs(eye_lx-n_x)
+                assert n_r_dev_raw+n_l_dev_raw == hori_eyes
+                # how much the nose deviates: 
+                n_r_dev=n_r_dev_raw/hori_eyes #if smaller than 0.5 -> turning to the right
+                n_l_dev=n_l_dev_raw/hori_eyes # if smaller than 0.5 -> turning to the left
+                print('|R_eye---({:.2f})---N---({:.2f})---L_eye|'.format(n_r_dev, n_l_dev))
+                # define the front face when n_r_dev and n_l_dev is larger than 0.25 
+                # to be a front face, those numbers should be between 0.5 w.r.t. the center
+                if (n_r_dev >0.25) & (n_l_dev>0.25):
+                    print("fr_num: {} 'CLASS 5' = front face".format(fr_num))
+                    showImage(fr_num, all_path)
+                elif n_r_dev >0.25:
+                    print("fr_num: {} 'CLASS 6' = turning to the left within approx. 22.5 degrees".format(fr_num))
+                    showImage(fr_num, all_path)
+                else:
+                    print("fr_num: {} 'CLASS 4' = turning to the right within approx. 22.5 degrees".format(fr_num))
+                    showImage(fr_num, all_path)
+
+            # nose is located outside of the right eye 
+            elif eye_rx>=n_x & n_x<eye_lx:
+                print("fr_num: {} 'CLASS 3' = turned to the right (approx. 22.5 to 45 degrees)".format(fr_num))
+                showImage(fr_num, all_path)
+
+            elif eye_rx<n_x & n_x>=eye_lx:
+                print("fr_num: {} 'CLASS 7' = turned to the left (approx. 22.5 to 45 degrees)".format(fr_num))
+                showImage(fr_num, all_path)
+
+            else:
+                n2+=1               
+                print("fr_num: {} = Exceptions reported from case 2".format(fr_num))
+                showImage(fr_num, all_path)
+                
+    return print('''Exceptions from case 1 = {} 
+                 from case 2 = {}'''.format(n1, n2))
+
+
+# In[15]:
 
 
 def saveClass(data):
@@ -495,7 +623,7 @@ def saveClass(data):
     return class_out
 
 
-# In[36]:
+# In[16]:
 
 
 # tqdm is addded
@@ -616,7 +744,7 @@ def saveClass_reserved(data):
     return class_out
 
 
-# In[37]:
+# In[17]:
 
 
 def removeAllFiles():
@@ -640,7 +768,7 @@ def removeAllFiles():
     return print("    ... Done!")
 
 
-# In[38]:
+# In[18]:
 
 
 def panCheck(img, mark):
@@ -691,7 +819,7 @@ def panCheck(img, mark):
     
 
 
-# In[39]:
+# In[19]:
 
 
 def tiltCheck(img, mark):   #deprecated or not use for the moment due to erronous 
@@ -749,7 +877,7 @@ def tiltCheck(img, mark):   #deprecated or not use for the moment due to erronou
         return print('Check whether the datastrip contains NaN values.') 
 
 
-# In[40]:
+# In[20]:
 
 
 def showClass_old_erroneous(data):
@@ -860,6 +988,18 @@ def showClass_old_erroneous(data):
                 showImage(fr_num, all_path)
                 
     return print("Exceptions from case 1: {} and from case 2: {}".format(n1, n2))
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
